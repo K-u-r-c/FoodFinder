@@ -78,6 +78,8 @@ class User(AbstractBaseUser):
             userRole = "Restaurant"
         elif self.role == 2:
             userRole = "Customer"
+        elif self.role is None and self.is_admin:
+            userRole = "Admin"
         return userRole
 
 

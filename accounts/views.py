@@ -1,22 +1,27 @@
+from django.utils.http import urlsafe_base64_decode
 from django.shortcuts import redirect, render
-from accounts.utils import detect_user
+from accounts.utils import (
+    detect_user,
+    send_verification_email,
+)
 from vendor.forms import VendorForm
 from .models import User, UserProfile
 from .forms import UserForm
 from django.contrib import messages, auth
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.exceptions import PermissionDenied
+from django.contrib.auth.tokens import default_token_generator
 
 
 def check_role_vendor(user):
-    if user.role == 1:
+    if user.role == 1 or (user.role is None and user.is_admin):
         return True
     else:
         raise PermissionDenied
 
 
 def check_role_customer(user):
-    if user.role == 2:
+    if user.role == 2 or (user.role is None and user.is_admin):
         return True
     else:
         raise PermissionDenied
@@ -43,6 +48,11 @@ def registerUser(request):
             )
             user.role = User.CUSTOMER
             user.save()
+
+            mail_subject = "Activate your FoodOnline account"
+            email_template_name = "accounts/emails/account_verification_email.html"
+            send_verification_email(request, user, mail_subject, email_template_name)
+
             messages.success(request, "User registered successfully")
             return redirect("registerUser")
         else:
@@ -83,6 +93,10 @@ def registerVendor(request):
             vendor.user_profile = UserProfile.objects.get(user=user)
             vendor.save()
 
+            mail_subject = "Activate your FoodOnline account"
+            email_template_name = "accounts/emails/account_verification_email.html"
+            send_verification_email(request, user, mail_subject, email_template_name)
+
             messages.success(
                 request,
                 "Your account has been registered succesfully, please wait for the approval.",
@@ -96,6 +110,23 @@ def registerVendor(request):
 
     context = {"form": form, "vendor_form": vendor_form}
     return render(request, "accounts/registerVendor.html", context)
+
+
+def activate(request, uidb64, token):
+    try:
+        uid = urlsafe_base64_decode(uidb64).decode()
+        user = User._default_manager.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+
+    if user is not None and default_token_generator.check_token(user, token):
+        user.is_active = True
+        user.save()
+        messages.success(request, "Account activated successfully")
+        return redirect("myAccount")
+    else:
+        messages.error(request, "Activation link is invalid")
+        return redirect("myAccount")
 
 
 def login(request):
@@ -139,3 +170,54 @@ def custDashboard(request):
 @user_passes_test(check_role_vendor)
 def vendorDashboard(request):
     return render(request, "accounts/vendorDashboard.html")
+
+
+def forgotPassword(request):
+    if request.method == "POST":
+        email = request.POST["email"]
+        if User.objects.filter(email=email).exists():
+            user = User.objects.get(email__exact=email)
+            mail_subject = "Reset your FoodOnline account password"
+            email_template_name = "accounts/emails/reset_password_email.html"
+            send_verification_email(request, user, mail_subject, email_template_name)
+            messages.success(request, "Password reset link has been sent to your email")
+            return redirect("login")
+        else:
+            messages.error(request, "Email does not exist")
+            return redirect("forgotPassword")
+    return render(request, "accounts/forgotPassword.html")
+
+
+def resetPasswordValidate(request, uidb64, token):
+    try:
+        uid = urlsafe_base64_decode(uidb64).decode()
+        user = User._default_manager.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+
+    if user is not None and default_token_generator.check_token(user, token):
+        request.session["uid"] = uid
+        messages.success(request, "Please reset your password")
+        return redirect("resetPassword")
+    else:
+        messages.error(request, "This link has been expired")
+        return redirect("login")
+
+
+def resetPassword(request):
+    if request.method == "POST":
+        password = request.POST["password"]
+        confirm_password = request.POST["confirm_password"]
+        if password == confirm_password:
+            uid = request.session["uid"]
+            user = User.objects.get(pk=uid)
+            user.set_password(password)
+            user.is_active = True
+            user.save()
+            messages.success(request, "Password reset successful")
+            return redirect("login")
+        else:
+            messages.error(request, "Passwords do not match")
+            return redirect("resetPassword")
+    else:
+        return render(request, "accounts/reset_password.html")
