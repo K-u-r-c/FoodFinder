@@ -1,0 +1,9 @@
+{% autoescape off %}
+  Hello {{user.first_name}},
+
+  {% if is_approved %}
+    Congratulations! Your vendor account has been approved
+  {% else %}
+    We are sorry, you were not approved as a vendor. For more information, please contact us.
+  {% endif %}
+{% endautoescape %}
