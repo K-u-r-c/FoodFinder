@@ -26,6 +26,6 @@
     z-index: 9999;
 }
 
-input.btn.btn-info {
+.btn {
     cursor: pointer;
 }
