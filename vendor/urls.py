@@ -18,4 +18,7 @@ urlpatterns = [
         views.deleteCategory,
         name="deleteCategory",
     ),
+    path("menuBuilder/food/add", views.addFood, name="addFood"),
+    path("menuBuilder/food/edit/<int:pk>", views.editFood, name="editFood"),
+    path("menuBuilder/food/delete/<int:pk>", views.deleteFood, name="deleteFood"),
 ]
