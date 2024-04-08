@@ -17,7 +17,7 @@
             <div class="img-holder">
               <figure>
                 <img src="
-                {% if vendor.user_profile.profile_picture %}
+                  {% if vendor.user_profile.profile_picture %}
                     {{ vendor.user_profile.profile_picture.url }}
                   {% else %}
                     {% static 'images/default-profile.png' %}

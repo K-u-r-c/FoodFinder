@@ -11,6 +11,7 @@ from django.contrib import messages, auth
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.tokens import default_token_generator
+from django.template.defaultfilters import slugify
 
 
 def check_role_vendor(user):
@@ -90,6 +91,8 @@ def registerVendor(request):
 
             vendor = vendor_form.save(commit=False)
             vendor.user = user
+            vendor_name = vendor_form.cleaned_data["vendor_name"]
+            vendor.vendor_slug = slugify(vendor_name) + "-" + str(user.id)
             vendor.user_profile = UserProfile.objects.get(user=user)
             vendor.save()
 
