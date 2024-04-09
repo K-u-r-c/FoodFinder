@@ -100,3 +100,9 @@ def decrease_cart(request, food_id):
             return JsonResponse({"error": "This URL only supports AJAX requests"})
     else:
         return JsonResponse({"error": "You must be logged in to decrease cart"})
+
+
+def cart(request):
+    cart_items = Cart.objects.filter(user=request.user)
+    context = {"cart_items": cart_items}
+    return render(request, "marketplace/cart.html", context)
