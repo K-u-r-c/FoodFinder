@@ -49,61 +49,28 @@ function onPlaceChanged() {
 }
 
 $(document).ready(function () {
-  // add to cart
   $(".add_to_cart").on("click", function (event) {
     event.preventDefault();
 
     food_id = $(this).attr("data-id");
     url = $(this).attr("data-url");
+    data = {
+      food_id: food_id,
+    };
 
     $.ajax({
       type: "GET",
       url: url,
+      data: data,
       success: function (response) {
-        // console.log(response);
-        if (response.success) {
-          $("#cart_counter").html(response.cart_counter["cart_count"]);
-          $("#qty-" + food_id).html(response.cart_item_quantity);
-        } else {
-          Swal.fire({
-            icon: "error",
-            title: "Oops...",
-            text: response.error,
-            confirmButtonColor: "#c33332",
-          });
-        }
+        console.log(response);
+        $("#cart_counter").html(response.cart_counter["cart_count"]);
+        $("#qty-" + food_id).html(response.cart_item_quantity);
       },
     });
   });
 
-  // decrease from cart
-  $(".decrease_cart").on("click", function (event) {
-    event.preventDefault();
-
-    food_id = $(this).attr("data-id");
-    url = $(this).attr("data-url");
-
-    $.ajax({
-      type: "GET",
-      url: url,
-      success: function (response) {
-        // console.log(response);
-        if (response.success) {
-          $("#cart_counter").html(response.cart_counter["cart_count"]);
-          $("#qty-" + food_id).html(response.cart_item_quantity);
-        } else {
-          Swal.fire({
-            icon: "error",
-            title: "Oops...",
-            text: response.error,
-            confirmButtonColor: "#c33332",
-          });
-        }
-      },
-    });
-  });
-
-  // place cart item quantity on load
+  // Place cart item quantity on load
   $(".item_qty").each(function () {
     var id = $(this).attr("id");
     var qty = $(this).attr("data-qty");
