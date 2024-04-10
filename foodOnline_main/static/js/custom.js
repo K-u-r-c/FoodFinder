@@ -103,6 +103,55 @@ $(document).ready(function () {
     });
   });
 
+  // delete cart
+  $(".delete_cart").on("click", function (event) {
+    event.preventDefault();
+
+    cart_id = $(this).attr("data-id");
+    url = $(this).attr("data-url");
+
+    $.ajax({
+      type: "GET",
+      url: url,
+      success: function (response) {
+        if (response.success) {
+          $("#cart_counter").html(response.cart_counter["cart_count"]);
+          removeCartItem(0, cart_id);
+          checkEmptyCart();
+
+          Swal.fire({
+            icon: "success",
+            title: "Success",
+            text: response.success,
+            confirmButtonColor: "#c33332",
+          });
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Oops...",
+            text: response.error,
+            confirmButtonColor: "#c33332",
+          });
+        }
+      },
+    });
+  });
+
+  // delete cart element if the qantity is 0
+  function removeCartItem(cartItemQuantity, cartId) {
+    if (cartItemQuantity <= 0) {
+      $("#cart-item-" + cartId).remove();
+    }
+  }
+
+  // check if cart is empty
+  function checkEmptyCart() {
+    var cartCounter = document.getElementById("cart_counter").innerHTML;
+    if (cartCounter <= 0) {
+      document.getElementById("empty-cart").style.display = "block";
+    }
+  }
+
   // place cart item quantity on load
   $(".item_qty").each(function () {
     var id = $(this).attr("id");
