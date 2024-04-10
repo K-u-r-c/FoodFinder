@@ -1,10 +1,10 @@
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from marketplace.context_processors import get_cart_amount, get_cart_counter
 from marketplace.models import Cart
 from menu.models import Category, FoodItem
 from vendor.models import Vendor
-from django.db.models import Prefetch
+from django.db.models import Prefetch, Q
 from django.contrib.auth.decorators import login_required
 
 
@@ -27,6 +27,13 @@ def vendor_detail(request, vendor_slug):
 
     context = {"vendor": vendor, "categories": categories, "cart_items": cart_items}
     return render(request, "marketplace/vendor_detail.html", context)
+
+
+@login_required(login_url="login")
+def cart(request):
+    cart_items = Cart.objects.filter(user=request.user).order_by("date_added")
+    context = {"cart_items": cart_items}
+    return render(request, "marketplace/cart.html", context)
 
 
 def add_to_cart(request, food_id):
@@ -107,13 +114,6 @@ def decrease_cart(request, food_id):
         return JsonResponse({"error": "You must be logged in to decrease cart"})
 
 
-@login_required(login_url="login")
-def cart(request):
-    cart_items = Cart.objects.filter(user=request.user).order_by("date_added")
-    context = {"cart_items": cart_items}
-    return render(request, "marketplace/cart.html", context)
-
-
 def delete_cart(request, cart_id):
     if request.user.is_authenticated:
         if request.headers.get("X-Requested-With") == "XMLHttpRequest":
@@ -134,3 +134,26 @@ def delete_cart(request, cart_id):
             return JsonResponse({"error": "This URL only supports AJAX requests"})
     else:
         return JsonResponse({"error": "You must be logged in to delete cart"})
+
+
+def search(request):
+    address = request.GET["address"]
+    latitude = request.GET["lat"]
+    longitude = request.GET["lng"]
+    radius = request.GET["radius"]
+    restaurant_name = request.GET["restaurant_name"]
+
+    fetch_vendors_by_food_item = FoodItem.objects.filter(
+        name__icontains=restaurant_name, is_available=True
+    ).values_list("vendor", flat=True)
+
+    vendors = Vendor.objects.filter(
+        Q(id__in=fetch_vendors_by_food_item)
+        | Q(vendor_name__icontains=restaurant_name),
+        is_approved=True,
+        user__is_active=True,
+    )
+
+    context = {"vendors": vendors, "vendor_count": vendors.count()}
+
+    return render(request, "marketplace/listings.html", context)
