@@ -1,6 +1,6 @@
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render
-from marketplace.context_processors import get_cart_counter
+from marketplace.context_processors import get_cart_amount, get_cart_counter
 from marketplace.models import Cart
 from menu.models import Category, FoodItem
 from vendor.models import Vendor
@@ -43,6 +43,7 @@ def add_to_cart(request, food_id):
                             "success": "Item added to cart",
                             "cart_counter": get_cart_counter(request),
                             "cart_item_quantity": checkCart.quantity,
+                            "cart_amount": get_cart_amount(request),
                         }
                     )
                 except Cart.DoesNotExist:
@@ -55,6 +56,7 @@ def add_to_cart(request, food_id):
                             "success": "Item added to cart and new cart created",
                             "cart_counter": get_cart_counter(request),
                             "cart_item_quantity": newCart.quantity,
+                            "cart_amount": get_cart_amount(request),
                         }
                     )
 
@@ -81,6 +83,7 @@ def decrease_cart(request, food_id):
                                 "success": "Item quantity decreased",
                                 "cart_counter": get_cart_counter(request),
                                 "cart_item_quantity": checkCart.quantity,
+                                "cart_amount": get_cart_amount(request),
                             }
                         )
                     else:
@@ -91,6 +94,7 @@ def decrease_cart(request, food_id):
                                 "success": "Item removed from cart",
                                 "cart_counter": get_cart_counter(request),
                                 "cart_item_quantity": checkCart.quantity,
+                                "cart_amount": get_cart_amount(request),
                             }
                         )
                 except Cart.DoesNotExist:
@@ -105,7 +109,7 @@ def decrease_cart(request, food_id):
 
 @login_required(login_url="login")
 def cart(request):
-    cart_items = Cart.objects.filter(user=request.user)
+    cart_items = Cart.objects.filter(user=request.user).order_by("date_added")
     context = {"cart_items": cart_items}
     return render(request, "marketplace/cart.html", context)
 
@@ -121,6 +125,7 @@ def delete_cart(request, cart_id):
                         {
                             "success": "Item removed from cart",
                             "cart_counter": get_cart_counter(request),
+                            "cart_amount": get_cart_amount(request),
                         }
                     )
             except Cart.DoesNotExist:

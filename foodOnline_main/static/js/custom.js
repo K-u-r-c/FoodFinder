@@ -64,6 +64,11 @@ $(document).ready(function () {
         if (response.success) {
           $("#cart_counter").html(response.cart_counter["cart_count"]);
           $("#qty-" + food_id).html(response.cart_item_quantity);
+          applyCartAmount(
+            response.cart_amount["subtotal"],
+            response.cart_amount["tax"],
+            response.cart_amount["total"]
+          );
         } else {
           Swal.fire({
             icon: "error",
@@ -81,6 +86,7 @@ $(document).ready(function () {
     event.preventDefault();
 
     food_id = $(this).attr("data-id");
+    cart_id = $(this).attr("id");
     url = $(this).attr("data-url");
 
     $.ajax({
@@ -91,6 +97,12 @@ $(document).ready(function () {
         if (response.success) {
           $("#cart_counter").html(response.cart_counter["cart_count"]);
           $("#qty-" + food_id).html(response.cart_item_quantity);
+          removeCartItem(response.cart_item_quantity, cart_id);
+          applyCartAmount(
+            response.cart_amount["subtotal"],
+            response.cart_amount["tax"],
+            response.cart_amount["total"]
+          );
         } else {
           Swal.fire({
             icon: "error",
@@ -117,7 +129,11 @@ $(document).ready(function () {
         if (response.success) {
           $("#cart_counter").html(response.cart_counter["cart_count"]);
           removeCartItem(0, cart_id);
-          checkEmptyCart();
+          applyCartAmount(
+            response.cart_amount["subtotal"],
+            response.cart_amount["tax"],
+            response.cart_amount["total"]
+          );
 
           Swal.fire({
             icon: "success",
@@ -139,8 +155,11 @@ $(document).ready(function () {
 
   // delete cart element if the qantity is 0
   function removeCartItem(cartItemQuantity, cartId) {
-    if (cartItemQuantity <= 0) {
-      $("#cart-item-" + cartId).remove();
+    if (window.location.pathname == "/cart/") {
+      if (cartItemQuantity <= 0) {
+        $("#cart-item-" + cartId).remove();
+      }
+      checkEmptyCart();
     }
   }
 
@@ -149,6 +168,15 @@ $(document).ready(function () {
     var cartCounter = document.getElementById("cart_counter").innerHTML;
     if (cartCounter <= 0) {
       document.getElementById("empty-cart").style.display = "block";
+    }
+  }
+
+  // apply cart amount
+  function applyCartAmount(subtotal, tax, total) {
+    if (window.location.pathname == "/cart/") {
+      $("#subtotal").html(subtotal);
+      $("#tax").html(tax);
+      $("#total").html(total);
     }
   }
 
