@@ -155,7 +155,6 @@ def search(request):
 
         if latitude and longitude and radius:
             point = GEOSGeometry(f"POINT({longitude} {latitude})")
-            print(point)
 
             vendors = (
                 Vendor.objects.filter(

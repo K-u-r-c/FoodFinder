@@ -78,9 +78,9 @@
                   <li class="has-border">
                     <figure>
                       {% if vendor.user_profile.profile_picture %}
-                        <a href="#"><img src="{{ vendor.user_profile.profile_picture.url }}" class="attachment-full size-full wp-post-image" alt="" /></a>
+                        <a href="{% url 'vendor_detail' vendor.vendor_slug %}"><img src="{{ vendor.user_profile.profile_picture.url }}" class="attachment-full size-full wp-post-image" alt="" /></a>
                       {% else %}
-                        <a href="#"><img src="{% static 'images/default-profile.png' %}" class="attachment-full size-full wp-post-image" alt="" /></a>
+                        <a href="{% url 'vendor_detail' vendor.vendor_slug %}"><img src="{% static 'images/default-profile.png' %}" class="attachment-full size-full wp-post-image" alt="" /></a>
                       {% endif %}
                     </figure>
                   </li>
@@ -111,20 +111,24 @@
                       <div class="img-holder">
                         <figure>
                           {% if vendor.user_profile.profile_picture %}
-                            <a href="#"><img src="{{ vendor.user_profile.profile_picture.url }}" class="img-thumb wp-post-image" alt="" /></a>
+                            <a href="{% url 'vendor_detail' vendor.vendor_slug %}"><img src="{{ vendor.user_profile.profile_picture.url }}" class="img-thumb wp-post-image" alt="" /></a>
                           {% else %}
-                            <a href="#"><img src="{% static 'images/default-profile.png' %}" class="img-thumb wp-post-image" alt="" /></a>
+                            <a href="{% url 'vendor_detail' vendor.vendor_slug %}"><img src="{% static 'images/default-profile.png' %}" class="img-thumb wp-post-image" alt="" /></a>
                           {% endif %}
                         </figure>
                         <span class="restaurant-status close"><em class="bookmarkRibbon"></em>Close</span>
                       </div>
                       <div class="text-holder">
                         <div class="post-title">
-                          <h5><a href="listing-detail.html">{{ vendor }}</a></h5>
+                          <h5><a href="{% url 'vendor_detail' vendor.vendor_slug %}">{{ vendor }}</a></h5>
                         </div>
                         <span>
                           &nbsp;{% if vendor.user_profile.city and vendor.user_profile.pin_code %}
                             {{ vendor.user_profile.city }}, {{ vendor.user_profile.pin_code }}
+                          {% endif %}
+
+                          {% if vendor.kms %}
+                            <span><small><b>{{ vendor.kms }} km</b></small></span>
                           {% endif %}
                         </span>
                       </div>
