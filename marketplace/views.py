@@ -1,11 +1,14 @@
-from django.http import HttpResponse, JsonResponse
-from django.shortcuts import get_object_or_404, render
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
 from marketplace.context_processors import get_cart_amount, get_cart_counter
 from marketplace.models import Cart
 from menu.models import Category, FoodItem
 from vendor.models import Vendor
 from django.db.models import Prefetch, Q
 from django.contrib.auth.decorators import login_required
+from django.contrib.gis.geos import GEOSGeometry
+from django.contrib.gis.measure import D
+from django.contrib.gis.db.models.functions import Distance
 
 
 def marketplace(request):
@@ -137,23 +140,50 @@ def delete_cart(request, cart_id):
 
 
 def search(request):
-    address = request.GET["address"]
-    latitude = request.GET["lat"]
-    longitude = request.GET["lng"]
-    radius = request.GET["radius"]
-    restaurant_name = request.GET["restaurant_name"]
+    if "address" not in request.GET:
+        return redirect("marketplace")
+    else:
+        address = request.GET["address"]
+        latitude = request.GET["lat"]
+        longitude = request.GET["lng"]
+        radius = request.GET["radius"]
+        restaurant_name = request.GET["restaurant_name"]
 
-    fetch_vendors_by_food_item = FoodItem.objects.filter(
-        name__icontains=restaurant_name, is_available=True
-    ).values_list("vendor", flat=True)
+        fetch_vendors_by_food_item = FoodItem.objects.filter(
+            name__icontains=restaurant_name, is_available=True
+        ).values_list("vendor", flat=True)
 
-    vendors = Vendor.objects.filter(
-        Q(id__in=fetch_vendors_by_food_item)
-        | Q(vendor_name__icontains=restaurant_name),
-        is_approved=True,
-        user__is_active=True,
-    )
+        if latitude and longitude and radius:
+            point = GEOSGeometry(f"POINT({longitude} {latitude})")
+            print(point)
 
-    context = {"vendors": vendors, "vendor_count": vendors.count()}
+            vendors = (
+                Vendor.objects.filter(
+                    Q(id__in=fetch_vendors_by_food_item)
+                    | Q(vendor_name__icontains=restaurant_name),
+                    is_approved=True,
+                    user__is_active=True,
+                    user_profile__location__distance_lte=(point, D(km=radius)),
+                )
+                .annotate(distance=Distance("user_profile__location", point))
+                .order_by("distance")
+            )
 
-    return render(request, "marketplace/listings.html", context)
+            for vendor in vendors:
+                vendor.kms = round(vendor.distance.km, 1)
+
+        else:
+            vendors = Vendor.objects.filter(
+                Q(id__in=fetch_vendors_by_food_item)
+                | Q(vendor_name__icontains=restaurant_name),
+                is_approved=True,
+                user__is_active=True,
+            )
+
+        context = {
+            "vendors": vendors,
+            "vendor_count": vendors.count(),
+            "address": address,
+        }
+
+        return render(request, "marketplace/listings.html", context)

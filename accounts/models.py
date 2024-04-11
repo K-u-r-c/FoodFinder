@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from django.contrib.gis.db import models as gis_models
+from django.contrib.gis.geos import Point
 
 
 class UserManager(BaseUserManager):
@@ -97,8 +99,14 @@ class UserProfile(models.Model):
     pin_code = models.CharField(max_length=100, null=True, blank=True)
     latitude = models.CharField(max_length=20, null=True, blank=True)
     longitude = models.CharField(max_length=20, null=True, blank=True)
+    location = gis_models.PointField(null=True, blank=True, srid=4326)
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.user.email
+
+    def save(self, *args, **kwargs):
+        if self.latitude and self.longitude:
+            self.location = Point(float(self.longitude), float(self.latitude))
+        return super(UserProfile, self).save(*args, **kwargs)
