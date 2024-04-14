@@ -8,9 +8,11 @@ from django.db.models import Prefetch, Q
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
+from accounts.models import UserProfile
 from marketplace.context_processors import get_cart_amount, get_cart_counter
 from marketplace.models import Cart
 from menu.models import Category, FoodItem
+from orders.forms import OrderForm
 from vendor.models import Vendor, OpeningHour
 
 
@@ -48,6 +50,7 @@ def cart(request):
     return render(request, "marketplace/cart.html", context)
 
 
+@login_required(login_url="login")
 def add_to_cart(request, food_id):
     if request.user.is_authenticated:
         if request.headers.get("X-Requested-With") == "XMLHttpRequest":
@@ -87,6 +90,7 @@ def add_to_cart(request, food_id):
         return JsonResponse({"error": "You must be logged in to add to cart"})
 
 
+@login_required(login_url="login")
 def decrease_cart(request, food_id):
     if request.user.is_authenticated:
         if request.headers.get("X-Requested-With") == "XMLHttpRequest":
@@ -126,6 +130,7 @@ def decrease_cart(request, food_id):
         return JsonResponse({"error": "You must be logged in to decrease cart"})
 
 
+@login_required(login_url="login")
 def delete_cart(request, cart_id):
     if request.user.is_authenticated:
         if request.headers.get("X-Requested-With") == "XMLHttpRequest":
@@ -195,3 +200,26 @@ def search(request):
         }
 
         return render(request, "marketplace/listings.html", context)
+
+
+@login_required(login_url="login")
+def checkout(request):
+    cart_items = Cart.objects.filter(user=request.user).order_by("date_added")
+    if cart_items.count() <= 0:
+        return redirect("marketplace")
+
+    user_profile = UserProfile.objects.get(user=request.user)
+    initial_values = {
+        "first_name": request.user.first_name,
+        "last_name": request.user.last_name,
+        "email": request.user.email,
+        "phone": request.user.phone_number,
+        "address": user_profile.address,
+        "country": user_profile.country,
+        "city": user_profile.city,
+        "pin_code": user_profile.pin_code,
+    }
+    form = OrderForm(initial=initial_values)
+
+    context = {"form": form, "cart_items": cart_items}
+    return render(request, "marketplace/checkout.html", context)
