@@ -1,4 +1,5 @@
 from django.urls import include, path
+
 from . import views
 
 urlpatterns = [
@@ -8,7 +9,7 @@ urlpatterns = [
     path("login/", views.login, name="login"),
     path("logout/", views.logout, name="logout"),
     path("myAccount/", views.myAccount, name="myAccount"),
-    path("custDashboard/", views.custDashboard, name="custDashboard"),
+    path("customer/", views.custDashboard, name="custDashboard"),
     path("vendorDashboard/", views.vendorDashboard, name="vendorDashboard"),
     path("activate/<uidb64>/<token>/", views.activate, name="activate"),
     path("forgotPassword/", views.forgotPassword, name="forgotPassword"),
@@ -19,4 +20,5 @@ urlpatterns = [
     ),
     path("resetPassword/", views.resetPassword, name="resetPassword"),
     path("vendor/", include("vendor.urls")),
+    path("customer/", include("customers.urls")),
 ]

@@ -1,4 +1,5 @@
 from django import forms
+
 from .models import User, UserProfile
 from .validators import allow_only_images_validator
 
@@ -59,3 +60,9 @@ class UserProfileForm(forms.ModelForm):
                 self.fields[field].widget.attrs["style"] = (
                     "background-color: #f2f2f2; cursor: default;"
                 )
+
+
+class UserInfoForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ["first_name", "last_name", "phone_number"]
