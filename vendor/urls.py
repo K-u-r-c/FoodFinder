@@ -1,4 +1,5 @@
 from django.urls import path
+
 from accounts import views as accounts_views
 from . import views
 
@@ -21,4 +22,7 @@ urlpatterns = [
     path("menuBuilder/food/add", views.addFood, name="addFood"),
     path("menuBuilder/food/edit/<int:pk>", views.editFood, name="editFood"),
     path("menuBuilder/food/delete/<int:pk>", views.deleteFood, name="deleteFood"),
+    path("openingHours/", views.openingHours, name="openingHours"),
+    path("openingHours/add/", views.addOpeningHour, name="addOpeningHour"),
+    path("openingHours/remove/<int:pk>", views.removeOpeningHour, name="removeOpeningHour"),
 ]

@@ -1,9 +1,10 @@
-from django.shortcuts import render
-from foodOnline_main.utils import get_or_set_current_location
-from vendor.models import Vendor
+from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.geos import GEOSGeometry
 from django.contrib.gis.measure import D
-from django.contrib.gis.db.models.functions import Distance
+from django.shortcuts import render
+
+from foodOnline_main.utils import get_or_set_current_location
+from vendor.models import Vendor
 
 
 def home(request):
@@ -19,6 +20,7 @@ def home(request):
         )
 
         for vendor in vendors:
+            print(vendor.distance.km)
             vendor.kms = round(vendor.distance.km, 1)
     else:
         vendors = Vendor.objects.filter(is_approved=True, user__is_active=True)[:8]

@@ -2,71 +2,81 @@
 {% load static %}
 
 {% block content %}
-  <!-- Main Section Start -->
-  <div class="main-section">
-    <div class="page-section nopadding cs-nomargin" style="margin-top: 0px;padding-top: 60px;padding-bottom: 10px;margin-bottom: 0px;">
-      <div class="container">
-        <div class="row">
-          <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-            <div class="row">
-              <aside class="col-lg-2 col-md-2 col-sm-12 col-xs-12"></aside>
-              <div class="col-lg-7 col-md-7 col-sm-12 col-xs-12">
-                <div class="listing-sorting-holder">
-                  <div class="row">
+    <!-- Main Section Start -->
+    <div class="main-section">
+        <div class="page-section nopadding cs-nomargin"
+             style="margin-top: 0px;padding-top: 60px;padding-bottom: 10px;margin-bottom: 0px;">
+            <div class="container">
+                <div class="row">
                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                      <h4>{{ vendors.count }} Restaurant's found</h4>
+                        <div class="row">
+                            <aside class="col-lg-2 col-md-2 col-sm-12 col-xs-12"></aside>
+                            <div class="col-lg-7 col-md-7 col-sm-12 col-xs-12">
+                                <div class="listing-sorting-holder">
+                                    <div class="row">
+                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                            <h4>{{ vendors.count }} Restaurant's found</h4>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="listing simple">
+                                    <ul>
+                                        {% for vendor in vendors %}
+                                            <li style="line-height: 15px;">
+                                                <div class="img-holder">
+                                                    <figure>
+                                                        <a href="{% url 'vendor_detail' vendor.vendor_slug %}">
+                                                            <img src="
+                                                                {% if vendor.user_profile.profile_picture %}
+                                                                  {{ vendor.user_profile.profile_picture.url }}
+                                                                {% else %}
+                                                                  {% static 'images/default-profile.png' %}
+                                                                {% endif %}
+                                                                "
+                                                                 class="img-list wp-post-image"
+                                                                 alt=""/>
+                                                        </a>
+                                                    </figure>
+                                                    {% if vendor.is_open %}
+                                                        <span class="restaurant-status open"><em
+                                                                class="bookmarkRibbon"></em>Open</span>
+                                                    {% else %}
+                                                        <span class="restaurant-status close"><em
+                                                                class="bookmarkRibbon"></em>Close</span>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="text-holder">
+                                                    <div class="post-title">
+                                                        <h5>
+                                                            <a href="{% url 'vendor_detail' vendor.vendor_slug %}">{{ vendor }}</a>
+                                                        </h5>
+                                                    </div>
+                                                    <span>
+                                                        <small class="text-muted">
+                                                          {% if vendor.user_profile.address %}
+                                                              {{ vendor.user_profile.address }}
+                                                          {% endif %}&nbsp;
+                                                        </small>
+                                                    </span>
+                                                    {% if address %}
+                                                        <br/>
+                                                        <span><small class="text-muted"><b>{{ vendor.kms }} km</b> away from {{ address }}</small></span>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="list-option">
+                                                    <a href="{% url 'vendor_detail' vendor.vendor_slug %}"
+                                                       class="viewmenu-btn text-color">View Menu</a>
+                                                </div>
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                  </div>
                 </div>
-                <div class="listing simple">
-                  <ul>
-                    {% for vendor in vendors %}
-                      <li style="line-height: 15px;">
-                        <div class="img-holder">
-                          <figure>
-                            <a href="{% url 'vendor_detail' vendor.vendor_slug %}">
-                              <img src="
-                                {% if vendor.user_profile.profile_picture %}
-                                  {{ vendor.user_profile.profile_picture.url }}
-                                {% else %}
-                                  {% static 'images/default-profile.png' %}
-                                {% endif %}
-                                "
-                                class="img-list wp-post-image"
-                                alt="" />
-                            </a>
-                          </figure>
-                          <span class="restaurant-status close"><em class="bookmarkRibbon"></em>Close</span>
-                        </div>
-                        <div class="text-holder">
-                          <div class="post-title">
-                            <h5><a href="{% url 'vendor_detail' vendor.vendor_slug %}">{{ vendor }}</a></h5>
-                          </div>
-                          <span>
-                            <small class="text-muted">
-                              {% if vendor.user_profile.address %}
-                                {{ vendor.user_profile.address }}
-                              {% endif %}&nbsp;
-                            </small>
-                          </span>
-                          {% if address %}
-                            <br />
-                            <span><small class="text-muted"><b>{{ vendor.kms }} km</b> away from {{ address }}</small></span>
-                          {% endif %}
-                        </div>
-                        <div class="list-option">
-                          <a href="{% url 'vendor_detail' vendor.vendor_slug %}" class="viewmenu-btn text-color">View Menu</a>
-                        </div>
-                      </li>
-                    {% endfor %}
-                  </ul>
-                </div>
-              </div>
             </div>
-          </div>
         </div>
-      </div>
     </div>
-  </div>
-  <!-- Main Section End -->
+    <!-- Main Section End -->
 {% endblock %}
