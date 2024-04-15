@@ -34,6 +34,10 @@
     color: black !important;
 }
 
+table > tbody > tr > td {
+    border: none !important;
+}
+
 .payment-method [type=radio] {
     position: absolute;
     opacity: 0;

@@ -73,9 +73,9 @@ TEMPLATES = [
                 "accounts.context_processors.get_vendor",
                 "accounts.context_processors.get_user_profile",
                 "accounts.context_processors.get_google_api_key",
+                "accounts.context_processors.get_paypal_client_id",
                 "marketplace.context_processors.get_cart_counter",
                 "marketplace.context_processors.get_cart_amounts",
-
             ],
         },
     },
@@ -156,3 +156,9 @@ DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL")
 
 # GOOGLE MAPS API KEY
 GOOGLE_MAPS_API_KEY = config("GOOGLE_MAPS_API_KEY")
+
+# PayPal Configuration
+PAYPAL_CLIENT_ID = config("PAYPAL_CLIENT_ID")
+PAYPAL_SECRET_KEY = config("PAYPAL_SECRET")
+
+SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin-allows-popups"
