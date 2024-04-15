@@ -19,7 +19,7 @@
                                 <div id="home" class="tab-pane in active">
                                     <div class="menu-itam-holder">
                                         <div id="menu-item-list-6272" class="menu-itam-list">
-                                            <form action="#" method="POST">
+                                            <form action="{% url 'place_order' %}" method="POST" id="place-order-form">
                                                 {% csrf_token %}
                                                 <div class="row">
                                                     <div class="form-group col-md-6 col-sm-12 col-lg-6">
@@ -57,6 +57,7 @@
                                                     <div class="form-group col-md-6 col-sm-12 col-lg-6">
                                                     </div>
                                                 </div>
+                                            </form>
                                         </div>
                                     </div>
                                 </div>
@@ -77,30 +78,22 @@
                                     <div class="menu-itam-holder">
                                         <div id="menu-item-list-6272" class="menu-itam-list">
                                             <ul>
-                                                {% if cart_items %}
-                                                    {% for item in cart_items %}
-                                                        <li id="cart-item-{{ item.id }}">
-                                                            <div class="image-holder">
-                                                                <img src="{{ item.food_item.image.url }}" alt=""/>
-                                                            </div>
-                                                            <div class="text-holder">
-                                                                <h6>{{ item.food_item }}</h6>
-                                                                <span>{{ item.description }}</span>
-                                                                <a href="{% url 'vendor_detail' item.food_item.vendor.vendor_slug %}"
-                                                                   class="badge badge-warning">{{ item.food_item.vendor }}</a>
-                                                            </div>
-                                                            <div class="price-holder">
-                                                                <span class="price">{{ item.quantity }}  x  {{ item.food_item.price }} $</span>
-                                                            </div>
-                                                        </li>
-                                                    {% endfor %}
-                                                {% else %}
-                                                    <li>
-                                                        <div class="text-center p-5">
-                                                            <h3>Your cart is empty</h3>
+                                                {% for item in cart_items %}
+                                                    <li id="cart-item-{{ item.id }}">
+                                                        <div class="image-holder">
+                                                            <img src="{{ item.food_item.image.url }}" alt=""/>
+                                                        </div>
+                                                        <div class="text-holder">
+                                                            <h6>{{ item.food_item }}</h6>
+                                                            <span>{{ item.description }}</span>
+                                                            <a href="{% url 'vendor_detail' item.food_item.vendor.vendor_slug %}"
+                                                               class="badge badge-warning">{{ item.food_item.vendor }}</a>
+                                                        </div>
+                                                        <div class="price-holder">
+                                                            <span class="price">{{ item.quantity }}  x  {{ item.food_item.price }} $</span>
                                                         </div>
                                                     </li>
-                                                {% endif %}
+                                                {% endfor %}
                                             </ul>
                                         </div>
                                         <div>
@@ -130,12 +123,29 @@
                                                         <span class="currency">$</span>
                                                     </span>
                                                 </li>
+                                                <hr>
+                                                <div></div>
+                                                <h5>SELECT PAYMENT METHOD</h5>
+                                                <div class="payment-method">
+                                                    <label>
+                                                        <input type="radio" name="payment_method" value="PayPal"
+                                                               form="place-order-form" required/>
+                                                        <img src="{% static 'images/paypal.png' %}" alt="PayPal"
+                                                             width="100"/>
+                                                    </label>
+                                                    <label>
+                                                        <input type="radio" name="payment_method" value="PayPal"
+                                                               form="place-order-form" required/>
+                                                        <img src="{% static 'images/blik.png' %}" alt="Blik"
+                                                             width="100"/>
+                                                    </label>
+                                                </div>
 
-                                                <button type="submit" class="btn btn-danger w-100 p-2 mt-3">
+                                                <button form="place-order-form" type="submit"
+                                                        class="btn btn-danger w-100 p-2 mt-3">
                                                     Place Order
                                                 </button>
                                             </ul>
-                                            </form>
                                         </div>
                                     </div>
                                 </div>

@@ -9,7 +9,7 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
 from accounts.models import UserProfile
-from marketplace.context_processors import get_cart_amount, get_cart_counter
+from marketplace.context_processors import get_cart_amounts, get_cart_counter
 from marketplace.models import Cart
 from menu.models import Category, FoodItem
 from orders.forms import OrderForm
@@ -65,7 +65,7 @@ def add_to_cart(request, food_id):
                             "success": "Item added to cart",
                             "cart_counter": get_cart_counter(request),
                             "cart_item_quantity": checkCart.quantity,
-                            "cart_amount": get_cart_amount(request),
+                            "cart_amount": get_cart_amounts(request),
                         }
                     )
                 except Cart.DoesNotExist:
@@ -78,7 +78,7 @@ def add_to_cart(request, food_id):
                             "success": "Item added to cart and new cart created",
                             "cart_counter": get_cart_counter(request),
                             "cart_item_quantity": newCart.quantity,
-                            "cart_amount": get_cart_amount(request),
+                            "cart_amount": get_cart_amounts(request),
                         }
                     )
 
@@ -106,7 +106,7 @@ def decrease_cart(request, food_id):
                                 "success": "Item quantity decreased",
                                 "cart_counter": get_cart_counter(request),
                                 "cart_item_quantity": checkCart.quantity,
-                                "cart_amount": get_cart_amount(request),
+                                "cart_amount": get_cart_amounts(request),
                             }
                         )
                     else:
@@ -117,7 +117,7 @@ def decrease_cart(request, food_id):
                                 "success": "Item removed from cart",
                                 "cart_counter": get_cart_counter(request),
                                 "cart_item_quantity": checkCart.quantity,
-                                "cart_amount": get_cart_amount(request),
+                                "cart_amount": get_cart_amounts(request),
                             }
                         )
                 except Cart.DoesNotExist:
@@ -142,7 +142,7 @@ def delete_cart(request, cart_id):
                         {
                             "success": "Item removed from cart",
                             "cart_counter": get_cart_counter(request),
-                            "cart_amount": get_cart_amount(request),
+                            "cart_amount": get_cart_amounts(request),
                         }
                     )
             except Cart.DoesNotExist:

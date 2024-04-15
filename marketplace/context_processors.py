@@ -17,7 +17,7 @@ def get_cart_counter(request):
     return {"cart_count": cart_count}
 
 
-def get_cart_amount(request):
+def get_cart_amounts(request):
     subtotal = 0
     tax = 0
     total = 0
@@ -36,11 +36,6 @@ def get_cart_amount(request):
             tax_dict.update({tax_type: {str(tax_percentage): tax_amount}})
 
         tax = sum(x for key in tax_dict.values() for x in key.values())
-
-        # loop over all tax items and print them
-        for key, value in tax_dict.items():
-            print(key, value)
-
         total = subtotal + tax
 
     return dict(subtotal=subtotal, tax=tax, total=total, tax_dict=tax_dict)
