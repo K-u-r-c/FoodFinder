@@ -1,17 +1,19 @@
-from django.utils.http import urlsafe_base64_decode
+from django.contrib import messages, auth
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.tokens import default_token_generator
+from django.core.exceptions import PermissionDenied
 from django.shortcuts import redirect, render
+from django.template.defaultfilters import slugify
+from django.utils.http import urlsafe_base64_decode
+
 from accounts.utils import (
     detect_user,
     send_verification_email,
 )
+from orders.models import Order
 from vendor.forms import VendorForm
-from .models import User, UserProfile
 from .forms import UserForm
-from django.contrib import messages, auth
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.core.exceptions import PermissionDenied
-from django.contrib.auth.tokens import default_token_generator
-from django.template.defaultfilters import slugify
+from .models import User, UserProfile
 
 
 def check_role_vendor(user):
@@ -166,7 +168,10 @@ def myAccount(request):
 @login_required(login_url="login")
 @user_passes_test(check_role_customer)
 def custDashboard(request):
-    return render(request, "accounts/custDashboard.html")
+    orders = Order.objects.filter(user=request.user, is_ordered=True)
+    recent_orders = orders.order_by("-created_at")[:5]
+    context = {"orders": orders, "recent_orders": recent_orders}
+    return render(request, "accounts/custDashboard.html", context)
 
 
 @login_required(login_url="login")
