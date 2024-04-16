@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+    <div class="container mt-5 mb-5">
+        <div class="justify-content-center row">
+            <div class="col-md-8">
+                <div class="bg-white p-3">
+                    <img src="{% static 'logo/foodOnlineLogo.png' %}" alt="Food Online Logo" width="300"/>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h4 class="mt-2 mb-3">Thank you for Your Order.</h4>
+                        </div>
+                        <div class="col-md-6 text-right">
+                            <p class="mb-0">{{ order.name }}</p>
+                            <p class="mb-0">{{ order.address }}</p>
+                            <p class="mb-0">{{ order.phone }}</p>
+                            <p class="mb-0">{{ order.email }}</p>
+                        </div>
+                    </div>
+                    <h6>{{ order.name }}, </h6><span>Review Your order details below</span>
+                    <hr>
+                    <div class="d-flex justify-content-center-between">
+                        <div>
+                            <span class="d-block">Order Date: <b>{{ order.created_at }}</b></span>
+                            <span class="d-block">Order Number: <b>{{ order.id }}</b></span>
+                            <span class="d-block">Payment Method: <b>{{ order.payment_method }}</b></span>
+                            <span class="d-block">Transaction ID: <b>{{ order.payment.transaction_id }}</b></span>
+                        </div>
+                    </div>
+                    <hr>
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>Food Image</th>
+                            <th>Food Name</th>
+                            <th>Quantity</th>
+                            <th>Price</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for item in ordered_food %}
+                            <tr>
+                                <td><img src="{{ item.fooditem.image.url }}" width="40"
+                                         alt="food image">
+                                </td>
+                                <td>
+                                    <p class="mb-0"><b>{{ item.fooditem.name }}</b></p>
+                                    <a class="text-muted"
+                                       href="{% url 'vendor_detail' item.fooditem.vendor.vendor_slug %}">{{ item.fooditem.vendor.vendor_name }}</a>
+
+                                </td>
+                                <td>{{ item.quantity }}</td>
+                                <td>{{ item.fooditem.price }} $</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    <hr>
+                    <div class="row mt-5">
+                        <div class="d-flex justify-content-center col-md-6">
+                            <img src="{% static 'images/paid.png' %}" alt="Paid image" width="200"/>
+                        </div>
+                        <div class="col-md-6">
+                            <ul>
+                                <li style=" list-style-type: none;">
+                                    Subtotal
+                                    <span class="price float-right">
+                                        <span id="subtotal">{{ subtotal }}</span>
+                                        <span class="currency">$</span>
+                                    </span>
+                                </li>
+                                {% for key, value in tax_data.items %}
+                                    {% for percentage, tax_amount in value.items %}
+                                        <li style="list-style-type: none;">
+                                            {{ key }} <small>({{ percentage }}%)</small>
+                                            <span class="price float-right">
+                                                <span id="tax-{{ key }}">{{ tax_amount }}</span>
+                                                <span class="currency">$</span>
+                                            </span>
+                                        </li>
+                                    {% endfor %}
+                                {% endfor %}
+                                <li style="list-style-type: none; font-weight: 600;">
+                                    Total
+                                    <span class="price float-right">
+                                        <span id="total">{{ total }}</span>
+                                        <span class="currency"> $</span>
+                                    </span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

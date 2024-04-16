@@ -38,6 +38,10 @@ table > tbody > tr > td {
     border: none !important;
 }
 
+table > thead > tr > th {
+    border: none !important;
+}
+
 .payment-method [type=radio] {
     position: absolute;
     opacity: 0;
