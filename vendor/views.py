@@ -247,7 +247,16 @@ def order_details(request, order_number):
     try:
         order = Order.objects.get(order_number=order_number, is_ordered=True)
         ordered_food = OrderedFood.objects.filter(order=order, fooditem__vendor=Vendor.objects.get(user=request.user))
-        context = {"order": order, "ordered_food": ordered_food}
+        context = {"order": order, "ordered_food": ordered_food, "subtotal": order.get_total_by_vendor()["subtotal"],
+                   "total": order.get_total_by_vendor()["total"],
+                   "tax_data": order.get_total_by_vendor()["tax_dict"]}
         return render(request, "vendor/order_details.html", context)
     except Order.DoesNotExist:
         return redirect("vendor")
+
+
+def my_orders(request):
+    vendor = Vendor.objects.get(user=request.user)
+    orders = Order.objects.filter(vendors__in=[vendor.id], is_ordered=True).order_by("-created_at")
+    context = {"orders": orders}
+    return render(request, "vendor/my_orders.html", context)

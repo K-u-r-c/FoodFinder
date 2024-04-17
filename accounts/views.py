@@ -1,3 +1,5 @@
+import datetime
+
 from django.contrib import messages, auth
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.tokens import default_token_generator
@@ -181,7 +183,19 @@ def vendorDashboard(request):
     vendor = Vendor.objects.get(user=request.user)
     orders = Order.objects.filter(vendors__in=[vendor.id], is_ordered=True).order_by("-created_at")
     recent_orders = orders[:5]
-    context = {"orders": orders, "recent_orders": recent_orders}
+    total_revenue = 0
+    total_revenue_this_month = 0
+    for order in orders:
+        total_revenue += order.get_total_by_vendor()["total"]
+
+    total_revenue = round(total_revenue, 2)
+
+    current_month_orders = orders.filter(vendors__in=[vendor.id], created_at__month=datetime.datetime.now().month)
+    for order in current_month_orders:
+        total_revenue_this_month += order.get_total_by_vendor()["total"]
+
+    context = {"orders": orders, "recent_orders": recent_orders, "total_revenue": total_revenue,
+               "total_revenue_this_month": total_revenue_this_month}
     return render(request, "accounts/vendorDashboard.html", context)
 
 

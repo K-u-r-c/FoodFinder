@@ -26,4 +26,5 @@ urlpatterns = [
     path("openingHours/add/", views.addOpeningHour, name="addOpeningHour"),
     path("openingHours/remove/<int:pk>", views.removeOpeningHour, name="removeOpeningHour"),
     path("order_details/<str:order_number>", views.order_details, name="vendor_order_details"),
+    path("my_orders/", views.my_orders, name="vendor_my_orders"),
 ]
