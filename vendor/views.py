@@ -10,6 +10,7 @@ from accounts.models import UserProfile
 from accounts.views import check_role_vendor
 from menu.forms import CategoryForm, FoodItemForm
 from menu.models import Category, FoodItem
+from orders.models import Order, OrderedFood
 from vendor.forms import VendorForm, OpeningHourForm
 from vendor.models import Vendor, OpeningHour
 
@@ -240,3 +241,13 @@ def removeOpeningHour(request, pk):
         return JsonResponse({"success": "Opening Hour Removed Successfully", "id": pk})
     else:
         return JsonResponse({"error": "Invalid Request"})
+
+
+def order_details(request, order_number):
+    try:
+        order = Order.objects.get(order_number=order_number, is_ordered=True)
+        ordered_food = OrderedFood.objects.filter(order=order, fooditem__vendor=Vendor.objects.get(user=request.user))
+        context = {"order": order, "ordered_food": ordered_food}
+        return render(request, "vendor/order_details.html", context)
+    except Order.DoesNotExist:
+        return redirect("vendor")
